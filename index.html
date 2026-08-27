@@ -257,14 +257,39 @@
       html += "</tr></thead><tbody>";
 
       for (const zeile of ergebnis.values) {
-        html += "<tr>";
+  html += "<tr>";
 
-        for (const wert of zeile) {
-          html += `<td>${escapeHtml(wert ?? "")}</td>`;
-        }
+  for (let i = 0; i < zeile.length; i++) {
+    const spalte = ergebnis.columns[i];
+    const wert = zeile[i];
 
-        html += "</tr>";
+    if (spalte === "bild_url") {
+      const url = String(wert ?? "").trim();
+
+      if (url.startsWith("https://")) {
+        html += `
+          <td>
+            <img
+              src="${escapeHtml(url)}"
+              alt="Bild"
+              width="96"
+              height="96"
+              loading="lazy"
+              referrerpolicy="no-referrer"
+            >
+          </td>
+        `;
+      } else {
+        html += "<td>Kein gültiger Bildlink</td>";
       }
+
+    } else {
+      html += `<td>${escapeHtml(wert ?? "")}</td>`;
+    }
+  }
+
+  html += "</tr>";
+}
 
       html += "</tbody></table>";
 
