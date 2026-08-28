@@ -262,108 +262,85 @@
   }
 
   function zeigeAbfrage() {
-    // SQL aus CodeMirror holen (nicht direkt aus textarea)
-    const sql = editor.getValue().trim();
-    const ausgabe = document.getElementById("ergebnis");
-    const meldung = document.getElementById("meldung");
+  const sql = editor.getValue().trim();
+  const ausgabe = document.getElementById("ergebnis");
+  const meldung = document.getElementById("meldung");
 
-    if (!db) {
-      meldung.textContent = "Datenbanken werden noch geladen.";
-      return;
-    }
-
-    if (!sql) {
-      meldung.textContent = "Bitte gib eine SQL-Abfrage ein.";
-      return;
-    }
-
-    try {
-      const resultate = db.exec(sql);
-
-      if (resultate.length === 0) {
-        ausgabe.innerHTML = "";
-        meldung.textContent = "SQL-Befehl erfolgreich ausgeführt.";
-        zeigeTabellen();
-        return;
-      }
-
-      const ergebnis = resultate[0];
-      let html = "<table><thead><tr>";
-
-      for (const spalte of ergebnis.columns) {
-        html += `<th>${escapeHtml(spalte)}</th>`;
-      }
-
-      html += "</tr></thead><tbody>";
-
-      for (const zeile of ergebnis.values) {
-        html += "<tr>";
-
-        for (let i = 0; i < zeile.length; i++) {
-          const spalte = ergebnis.columns[i];
-          const wert = zeile[i];
-
-          if (spalte === "bild" || spalte === "quelle") {
-            const url = String(wert ?? "").trim();
-
-            if (url.startsWith("https://")) {
-              html += `
-              <td>
-              <img
-                src="${escapeHtml(url)}"
-                alt="${spalte === 'quelle' ? 'Quelle-Logo' : 'Bild'}"
-                width="68"
-                height="68"
-                loading="lazy"
-                referrerpolicy="no-referrer"
-              >
-            </td>
-            `;
-        } else {
-          html += "<td>Kein gültiger Link</td>";
-        }
-
-      } else {
-        html += `<td>${escapeHtml(wert ?? "")}</td>`;
-      }
-
-          
-
-            if (url.startsWith("https://")) {
-              html += `
-                <td>
-                  <img
-                    src="${escapeHtml(url)}"
-                    alt="Bild"
-                    width="68"
-                    height="68"
-                    loading="lazy"
-                    referrerpolicy="no-referrer"
-                  >
-                </td>
-              `;
-            } else {
-              html += "<td>Kein gültiger Bildlink</td>";
-            }
-
-          } else {
-            html += `<td>${escapeHtml(wert ?? "")}</td>`;
-          }
-        }
-
-        html += "</tr>";
-      }
-
-      html += "</tbody></table>";
-
-      ausgabe.innerHTML = html;
-      meldung.textContent = `${ergebnis.values.length} Zeile(n) gefunden.`;
-
-    } catch (fehler) {
-      ausgabe.innerHTML = "";
-      meldung.textContent = "SQL-Fehler: " + fehler.message;
-    }
+  if (!db) {
+    meldung.textContent = "Datenbanken werden noch geladen.";
+    return;
   }
+
+  if (!sql) {
+    meldung.textContent = "Bitte gib eine SQL-Abfrage ein.";
+    return;
+  }
+
+  try {
+    const resultate = db.exec(sql);
+
+    if (resultate.length === 0) {
+      ausgabe.innerHTML = "";
+      meldung.textContent = "SQL-Befehl erfolgreich ausgeführt.";
+      zeigeTabellen();
+      return;
+    }
+
+    const ergebnis = resultate[0];
+    let html = "<table><thead><tr>";
+
+    for (const spalte of ergebnis.columns) {
+      html += `<th>${escapeHtml(spalte)}</th>`;
+    }
+
+    html += "</tr></thead><tbody>";
+
+    for (const zeile of ergebnis.values) {
+      html += "<tr>";
+
+      for (let i = 0; i < zeile.length; i++) {
+        const spalte = ergebnis.columns[i];
+        const wert = zeile[i];
+
+        // Hier ist die korrigierte Logik:
+        if (spalte === "bild" || spalte === "quelle") {
+          const url = String(wert ?? "").trim();
+
+          if (url.startsWith("https://")) {
+            html += `
+              <td>
+                <img
+                  src="${escapeHtml(url)}"
+                  alt="${spalte === 'quelle' ? 'Quelle-Logo' : 'Bild'}"
+                  width="68"
+                  height="68"
+                  loading="lazy"
+                  referrerpolicy="no-referrer"
+                >
+              </td>
+            `;
+          } else {
+            html += "<td>Kein gültiger Link</td>";
+          }
+
+        } else {
+          html += `<td>${escapeHtml(wert ?? "")}</td>`;
+        }
+      }
+
+      html += "</tr>";
+    }
+
+    html += "</tbody></table>";
+
+    ausgabe.innerHTML = html;
+    meldung.textContent = `${ergebnis.values.length} Zeile(n) gefunden.`;
+
+  } catch (fehler) {
+    ausgabe.innerHTML = "";
+    meldung.textContent = "SQL-Fehler: " + fehler.message;
+  }
+}
 
   function escapeHtml(wert) {
     return String(wert)
