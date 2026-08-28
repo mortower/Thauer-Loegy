@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SQLite-Übungen</title>
 
+  <!-- CodeMirror CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/eclipse.min.css">
+
   <style>
     body {
       max-width: 1000px;
@@ -16,13 +20,13 @@
     }
 
     h1 { margin-bottom: 0.2rem; }
-    textarea {
-      width: 100%;
+    
+    /* CodeMirror anpassen */
+    .CodeMirror {
       min-height: 230px;
-      padding: 0.8rem;
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
       font-size: 1rem;
-      box-sizing: border-box;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
     }
 
     button {
@@ -72,16 +76,13 @@
 
   <h2>Datenbanktabellen</h2>
   <p>
-   schueler (id, name,klasse, punkte)
+   schueler (id, name, klasse, punkte)
   </p>
   
+  <div id="tabellen-info"></div>
 
-  <textarea
-  id="sql"
-  rows="12"
-  placeholder="SELECT *&#10;FROM schueler"
-  ></textarea>
-	
+  <!-- Textarea für CodeMirror -->
+  <textarea id="sql" rows="12" placeholder="SELECT *&#10;FROM schueler"></textarea>
 
   <br>
   <button id="ausfuehren">Abfrage ausführen</button>
@@ -89,11 +90,17 @@
   <div id="meldung">Datenbank wird geladen …</div>
   <div id="ergebnis"></div>
 
+  <!-- sql.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
+  
+  <!-- CodeMirror -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sql/sql.min.js"></script>
 
   <script>
   let db;
   let SQL;
+  let editor; // CodeMirror-Instanz
 
   const datenbanken = [
     "datenbanken/schule.db",
@@ -110,6 +117,22 @@
 
     await ladeAlleDatenbanken();
     zeigeTabellen();
+    
+    // CodeMirror initialisieren NACHDEM sql.js geladen ist
+    initialisiereEditor();
+  }
+
+  function initialisiereEditor() {
+    const textarea = document.getElementById("sql");
+    
+    editor = CodeMirror.fromTextArea(textarea, {
+      mode: "text/x-sql",
+      theme: "eclipse",
+      lineNumbers: true,
+      lineWrapping: true,
+      tabSize: 2,
+      indentUnit: 2
+    });
   }
 
   async function ladeAlleDatenbanken() {
@@ -222,7 +245,8 @@
   }
 
   function zeigeAbfrage() {
-    const sql = document.getElementById("sql").value.trim();
+    // SQL aus CodeMirror holen (nicht direkt aus textarea)
+    const sql = editor.getValue().trim();
     const ausgabe = document.getElementById("ergebnis");
     const meldung = document.getElementById("meldung");
 
@@ -256,39 +280,39 @@
       html += "</tr></thead><tbody>";
 
       for (const zeile of ergebnis.values) {
-  html += "<tr>";
+        html += "<tr>";
 
-  for (let i = 0; i < zeile.length; i++) {
-    const spalte = ergebnis.columns[i];
-    const wert = zeile[i];
+        for (let i = 0; i < zeile.length; i++) {
+          const spalte = ergebnis.columns[i];
+          const wert = zeile[i];
 
-    if (spalte === "bild_url") {
-      const url = String(wert ?? "").trim();
+          if (spalte === "bild_url") {
+            const url = String(wert ?? "").trim();
 
-      if (url.startsWith("https://")) {
-        html += `
-          <td>
-            <img
-              src="${escapeHtml(url)}"
-              alt="Bild"
-              width="48"
-              height="48"
-              loading="lazy"
-              referrerpolicy="no-referrer"
-            >
-          </td>
-        `;
-      } else {
-        html += "<td>Kein gültiger Bildlink</td>";
+            if (url.startsWith("https://")) {
+              html += `
+                <td>
+                  <img
+                    src="${escapeHtml(url)}"
+                    alt="Bild"
+                    width="48"
+                    height="48"
+                    loading="lazy"
+                    referrerpolicy="no-referrer"
+                  >
+                </td>
+              `;
+            } else {
+              html += "<td>Kein gültiger Bildlink</td>";
+            }
+
+          } else {
+            html += `<td>${escapeHtml(wert ?? "")}</td>`;
+          }
+        }
+
+        html += "</tr>";
       }
-
-    } else {
-      html += `<td>${escapeHtml(wert ?? "")}</td>`;
-    }
-  }
-
-  html += "</tr>";
-}
 
       html += "</tbody></table>";
 
@@ -314,6 +338,6 @@
     .addEventListener("click", zeigeAbfrage);
 
   starteSqlJs();
-</script>
+  </script>
 </body>
 </html>
