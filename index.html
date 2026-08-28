@@ -90,6 +90,7 @@
   <div style="margin-top: 0.4rem; display: flex; align-items: center;">
     <button id="ausfuehren">Abfrage ausführen</button>
 
+  
     <div style="margin-left: auto; display: flex; align-items: center; gap: 0.4rem;">
       <button id="zoom-minus" class="secondary" style="padding: 0.3rem 0.5rem; font-size: 1.1rem;" title="Schrift verkleinern">−</button>
       <button id="zoom-plus" class="secondary" style="padding: 0.3rem 0.5rem; font-size: 1.1rem;" title="Schrift vergrößern">+</button>
@@ -346,27 +347,43 @@
 
   let editorFontSize = 18; // Startgröße in px
 
+function initialisiereEditor() {
+  const textarea = document.getElementById("sql");
+  
+  editor = CodeMirror.fromTextArea(textarea, {
+    mode: "text/x-sql",
+    theme: "eclipse",
+    lineNumbers: true,
+    lineWrapping: true,
+    tabSize: 2,
+    indentUnit: 2
+  });
+
+  // Initiale Schriftgröße setzen
+  setEditorFontSize(editorFontSize);
+
+  // Zoom-Event-Listener
+  document.getElementById("zoom-minus")
+    .addEventListener("click", () => {
+      setEditorFontSize(Math.max(10, editorFontSize - 2));
+    });
+
+  document.getElementById("zoom-plus")
+    .addEventListener("click", () => {
+      setEditorFontSize(Math.min(32, editorFontSize + 2));
+    });
+}
+
 function setEditorFontSize(size) {
   editorFontSize = size;
   const dom = document.querySelector(".CodeMirror");
   if (dom) {
     dom.style.fontSize = editorFontSize + "px";
   }
-  editor.refresh();
+  if (editor) {
+    editor.refresh();
+  }
 }
-
-document.getElementById("zoom-minus")
-  .addEventListener("click", () => {
-    setEditorFontSize(Math.max(10, editorFontSize - 2));
-  });
-
-document.getElementById("zoom-plus")
-  .addEventListener("click", () => {
-    setEditorFontSize(Math.min(32, editorFontSize + 2));
-  });
-
-// Initiale Schriftgröße setzen
-setEditorFontSize(editorFontSize);
 
   document.getElementById("ausfuehren")
     .addEventListener("click", zeigeAbfrage);
