@@ -30,7 +30,7 @@
     }
 
     button {
-      margin: 0.8rem 0.4rem 0.8rem 0;
+      margin: 0.2rem 0.4rem 0.2rem 0;
       padding: 0.6rem 1rem;
       border: 0;
       border-radius: 6px;
@@ -87,8 +87,11 @@
   
   <textarea id="sql" rows="12" placeholder="SELECT *&#10;FROM schueler"></textarea>
 
-  <br>
-  <button id="ausfuehren">Abfrage ausführen</button>
+  <div style="margin-top: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+    <button id="ausfuehren">Abfrage ausführen</button>
+    <button id="zoom-minus" class="secondary" style="padding: 0.3rem 0.5rem; font-size: 1.1rem;" title="Schrift verkleinern">−</button>
+    <button id="zoom-plus" class="secondary" style="padding: 0.3rem 0.5rem; font-size: 1.1rem;" title="Schrift vergrößern">+</button>
+  </div>
 
   <div id="meldung">Datenbank wird geladen …</div>
   <div id="ergebnis"></div>
@@ -336,6 +339,30 @@
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
   }
+
+
+  let editorFontSize = 16; // Startgröße in px
+
+function setEditorFontSize(size) {
+  editorFontSize = size;
+  const dom = document.querySelector(".CodeMirror");
+  if (dom) {
+    dom.style.fontSize = editorFontSize + "px";
+  }
+}
+
+document.getElementById("zoom-minus")
+  .addEventListener("click", () => {
+    setEditorFontSize(Math.max(10, editorFontSize - 2));
+  });
+
+document.getElementById("zoom-plus")
+  .addEventListener("click", () => {
+    setEditorFontSize(Math.min(24, editorFontSize + 2));
+  });
+
+// Initiale Schriftgröße setzen
+setEditorFontSize(editorFontSize);
 
   document.getElementById("ausfuehren")
     .addEventListener("click", zeigeAbfrage);
