@@ -21,17 +21,22 @@
 
     h1 { margin-bottom: 0.2rem; }
     
-    /* CodeMirror anpassen */
     .CodeMirror {
       min-height: 230px;
       font-size: 1rem;
       border: 1px solid #d1d5db;
       border-radius: 6px;
-      margin-bottom: 0.5rem;
+      width: 100%;      
+      height: 230px; 
+    }
+
+    textarea#sql {
+      width: 100%;
+      box-sizing: border-box;
     }
 
     button {
-      margin: 1rem 0.4rem 0.8rem 0; /* ← margin-top von 0.8rem auf 1rem geändert */
+      margin: 0.8rem 0.4rem 0.8rem 0;
       padding: 0.6rem 1rem;
       border: 0;
       border-radius: 6px;
@@ -85,6 +90,7 @@
   <!-- Textarea für CodeMirror -->
   <textarea id="sql" rows="12" placeholder="SELECT *&#10;FROM schueler"></textarea>
 
+  <br>
   <button id="ausfuehren">Abfrage ausführen</button>
 
   <div id="meldung">Datenbank wird geladen …</div>
@@ -341,3 +347,6 @@
   </script>
 </body>
 </html>
+
+
+der button abfrage senden ist etwas nach unten gerutscht
