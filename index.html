@@ -80,7 +80,7 @@
 
   <h2>Datenbanktabellen</h2>
   <p>
-   pokemon (bild, id, name, typ1, typ2, groesse, gewicht, species, beschreibung)
+   pokemon (bild, <u>id</u>, name, typ1, typ2, groesse, gewicht, species, beschreibung)
   </p>
 
   <div id="tabellen-info"></div>
@@ -94,11 +94,6 @@
       <button id="zoom-minus" class="secondary" style="padding: 0.3rem 0.5rem; font-size: 1.1rem;" title="Schrift verkleinern">−</button>
       <button id="zoom-plus" class="secondary" style="padding: 0.3rem 0.5rem; font-size: 1.1rem;" title="Schrift vergrößern">+</button>
     </div>
-  </div>
-
-
-  <div style="margin-top: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
-    <button id="ausfuehren">Abfrage ausführen</button>
   </div>
 
   <div id="meldung">Datenbank wird geladen …</div>
@@ -357,6 +352,7 @@ function setEditorFontSize(size) {
   if (dom) {
     dom.style.fontSize = editorFontSize + "px";
   }
+  editor.refresh();
 }
 
 document.getElementById("zoom-minus")
