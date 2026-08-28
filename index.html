@@ -27,10 +27,11 @@
       font-size: 1rem;
       border: 1px solid #d1d5db;
       border-radius: 6px;
+      margin-bottom: 0.5rem; /* ← neu: etwas Abstand nach unten */
     }
 
     button {
-      margin: 0.8rem 0.4rem 0.8rem 0;
+      margin: 1rem 0.4rem 0.8rem 0; /* ← margin-top von 0.8rem auf 1rem geändert */
       padding: 0.6rem 1rem;
       border: 0;
       border-radius: 6px;
@@ -78,13 +79,12 @@
   <p>
    schueler (id, name, klasse, punkte)
   </p>
-  
-  <div id="tabellen-info"></div>
+
+  <h3>SQL-Befehle</h3>
 
   <!-- Textarea für CodeMirror -->
   <textarea id="sql" rows="12" placeholder="SELECT *&#10;FROM schueler"></textarea>
 
-  <br>
   <button id="ausfuehren">Abfrage ausführen</button>
 
   <div id="meldung">Datenbank wird geladen …</div>
