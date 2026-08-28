@@ -26,8 +26,8 @@
       font-size: 1rem;
       border: 1px solid #d1d5db;
       border-radius: 6px;
-      width: 100%;      
-      height: 230px; 
+      width: 100%;
+      height: 230px;
     }
 
     textarea#sql {
@@ -78,7 +78,7 @@
 </head>
 
 <body>
-  <h1>SQLite-Übungen</h1>
+  <h1>SQLite-&Uuml;bungen</h1>
 
   <h2>Datenbanktabellen</h2>
   <p>
@@ -87,13 +87,13 @@
 
   <h3>SQL-Befehle</h3>
 
-  <!-- Textarea für CodeMirror -->
+  <!-- Textarea f&uuml;r CodeMirror -->
   <textarea id="sql" rows="12" placeholder="SELECT *&#10;FROM schueler"></textarea>
 
   <br>
-  <button id="ausfuehren">Abfrage ausführen</button>
+  <button id="ausfuehren">Abfrage ausf&uuml;hren</button>
 
-  <div id="meldung">Datenbank wird geladen …</div>
+  <div id="meldung">Datenbank wird geladen &hellip;</div>
   <div id="ergebnis"></div>
 
   <!-- sql.js -->
@@ -145,7 +145,7 @@
     const meldung = document.getElementById("meldung");
     const ausgabe = document.getElementById("ergebnis");
 
-    meldung.textContent = "Übungsdatenbanken werden geladen …";
+    meldung.textContent = "&Uuml;bungsdatenbanken werden geladen &hellip;";
     ausgabe.innerHTML = "";
 
     let geladeneDateien = 0;
@@ -196,7 +196,7 @@
 
       if (existiertSchon.length > 0) {
         console.warn(
-          `Tabelle "${tabellenName}" aus ${dateiname} wurde übersprungen, ` +
+          `Tabelle "${tabellenName}" aus ${dateiname} wurde &uuml;bersprungen, ` +
           "weil bereits eine Tabelle mit diesem Namen existiert."
         );
         continue;
@@ -246,7 +246,7 @@
       : [];
 
     info.textContent = tabellen.length > 0
-      ? "Verfügbare Tabellen: " + tabellen.join(", ")
+      ? "Verf&uuml;gbare Tabellen: " + tabellen.join(", ")
       : "Es wurden keine Tabellen geladen.";
   }
 
@@ -271,7 +271,7 @@
 
       if (resultate.length === 0) {
         ausgabe.innerHTML = "";
-        meldung.textContent = "SQL-Befehl erfolgreich ausgeführt.";
+        meldung.textContent = "SQL-Befehl erfolgreich ausgef&uuml;hrt.";
         zeigeTabellen();
         return;
       }
@@ -292,7 +292,7 @@
           const spalte = ergebnis.columns[i];
           const wert = zeile[i];
 
-          if (spalte === "bild_url") {
+          if (spalte === "bild") {
             const url = String(wert ?? "").trim();
 
             if (url.startsWith("https://")) {
@@ -309,7 +309,7 @@
                 </td>
               `;
             } else {
-              html += "<td>Kein gültiger Bildlink</td>";
+              html += "<td>Kein g&uuml;ltiger Bildlink</td>";
             }
 
           } else {
