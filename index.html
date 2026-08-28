@@ -303,8 +303,31 @@
           const spalte = ergebnis.columns[i];
           const wert = zeile[i];
 
-          if (spalte === "bild") {
+          if (spalte === "bild" || spalte === "quelle") {
             const url = String(wert ?? "").trim();
+
+            if (url.startsWith("https://")) {
+              html += `
+              <td>
+              <img
+                src="${escapeHtml(url)}"
+                alt="${spalte === 'quelle' ? 'Quelle-Logo' : 'Bild'}"
+                width="68"
+                height="68"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+              >
+            </td>
+            `;
+        } else {
+          html += "<td>Kein gültiger Link</td>";
+        }
+
+      } else {
+        html += `<td>${escapeHtml(wert ?? "")}</td>`;
+      }
+
+          
 
             if (url.startsWith("https://")) {
               html += `
