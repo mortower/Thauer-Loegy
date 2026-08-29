@@ -193,10 +193,8 @@
   <div id="meldung">Datenbanken werden geladen …</div>
   <div id="ergebnis"></div>
 
-  <!-- sql.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
 
-  <!-- CodeMirror -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sql/sql.min.js"></script>
 
@@ -205,7 +203,7 @@
     let SQL;
     let editor;
 
-    let editorFontSize = 18;
+    let editorFontSize = 24;
 
     const datenbanken = [
       "datenbanken/pokedex.db",
@@ -257,7 +255,7 @@
       document
         .getElementById("zoom-plus")
         .addEventListener("click", () => {
-          setEditorFontSize(Math.min(32, editorFontSize + 2));
+          setEditorFontSize(Math.min(42, editorFontSize + 2));
         });
     }
 
@@ -414,10 +412,6 @@
       try {
         const resultate = db.exec(sql);
 
-        /*
-          Befehle wie INSERT, UPDATE, DELETE oder CREATE TABLE
-          liefern keine Ergebnistabelle zurück.
-        */
         if (resultate.length === 0) {
           ausgabe.innerHTML = "";
           meldung.textContent = "SQL-Befehl erfolgreich ausgeführt.";
@@ -427,13 +421,6 @@
 
         const ergebnis = resultate[0];
 
-        /*
-          Filme erkennen:
-          Die Film-Tabelle enthält normalerweise "titel" und "quelle".
-
-          Pokémon erkennen:
-          Die Pokémon-Tabelle enthält normalerweise "name" und "typ1".
-        */
         const istFilmAbfrage =
           ergebnis.columns.includes("titel") &&
           ergebnis.columns.includes("quelle");
@@ -459,13 +446,7 @@
           for (let i = 0; i < zeile.length; i++) {
             const spalte = ergebnis.columns[i];
             const wert = zeile[i];
-
-            /*
-              Bilder:
-              - Filmplakate: Hochformat
-              - Pokémon-Bilder: quadratisch
-              - Andere Tabellen mit "bild": ebenfalls quadratisch
-            */
+            
             if (spalte === "bild") {
               const bildUrl = String(wert ?? "").trim();
 
@@ -494,19 +475,7 @@
               } else {
                 html += "<td>Kein Bild vorhanden</td>";
               }
-
-            /*
-              Filmquelle:
-              Erwartet JSON in der Datenbankspalte "quelle".
-
-              Beispiel:
-              {
-                "logo": "https://...svg",
-                "url": "https://www.themoviedb.org/movie/550",
-                "hinweis": "This product uses the TMDB API but is not endorsed or certified by TMDB.",
-                "hinweis_de": "Diese Anwendung verwendet die TMDB-API ..."
-              }
-            */
+            
             } else if (spalte === "quelle") {
               let quelle = null;
 
@@ -567,9 +536,6 @@
                 `;
               }
 
-            /*
-              Alle anderen Datenbankwerte werden sicher als Text angezeigt.
-            */
             } else {
               html += `<td>${escapeHtml(wert ?? "")}</td>`;
             }
