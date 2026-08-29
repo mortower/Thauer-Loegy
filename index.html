@@ -81,13 +81,18 @@
     }
 
     #ergebnis {
+      width: 100%;
       overflow-x: auto;
+      overflow-y: visible;
+      -webkit-overflow-scrolling: touch;
     }
 
     table {
       width: 100%;
+      min-width: 1050px;
       margin-top: 1rem;
       border-collapse: collapse;
+      table-layout: auto;
     }
 
     th,
@@ -96,9 +101,8 @@
       text-align: left;
       vertical-align: top;
       border: 1px solid #d1d5db;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
       white-space: normal;
+      overflow-wrap: anywhere;
     }
 
     th {
@@ -110,8 +114,7 @@
       background: #f3f4f6;
       border-radius: 3px;
     }
-
-    /* Filmplakate: Hochformat */
+    
     .bild-poster {
       display: block;
       width: 68px;
@@ -119,8 +122,7 @@
       object-fit: cover;
       border-radius: 4px;
     }
-
-    /* Pokémon und andere quadratische Bilder */
+    
     .bild-quadratisch {
       display: block;
       width: 68px;
@@ -129,9 +131,13 @@
       border-radius: 4px;
     }
 
-    /* TMDB-Quellenzelle */
     .tmdb-quelle {
-      min-width: 230px;
+      width: 320px;
+      min-width: 320px;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      white-space: normal;
     }
 
     .tmdb-logo {
@@ -139,18 +145,22 @@
       width: 44px;
       height: 44px;
       object-fit: contain;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.45rem;
     }
 
     .tmdb-hinweis {
       display: block;
+      max-width: 300px;
       color: #4b5563;
       font-size: 0.72rem;
-      line-height: 1.3;
+      line-height: 1.35;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: normal;
     }
 
     .tmdb-hinweis-de {
-      margin-top: 0.35rem;
+      margin-top: 0.4rem;
     }
   </style>
 </head>
@@ -173,7 +183,7 @@
   <textarea id="sql" rows="12"></textarea>
 
   <div style="margin-top: 0.4rem; display: flex; align-items: center;">
-    <button id="ausfuehren">Abfrage ausführen</button>
+    <button id="ausfuehren" type="button">Abfrage ausführen</button>
 
     <div style="margin-left: auto; display: flex; align-items: center; gap: 0.4rem;">
       <button
@@ -418,10 +428,6 @@
       try {
         const resultate = db.exec(sql);
 
-        /*
-          Befehle wie INSERT, UPDATE, DELETE oder CREATE TABLE
-          liefern keine Ergebnistabelle zurück.
-        */
         if (resultate.length === 0) {
           ausgabe.innerHTML = "";
           meldung.textContent = "SQL-Befehl erfolgreich ausgeführt.";
@@ -431,13 +437,6 @@
 
         const ergebnis = resultate[0];
 
-        /*
-          Filme erkennen:
-          Die Film-Tabelle enthält normalerweise "titel" und "quelle".
-
-          Pokémon erkennen:
-          Die Pokémon-Tabelle enthält normalerweise "name" und "typ1".
-        */
         const istFilmAbfrage =
           ergebnis.columns.includes("titel") &&
           ergebnis.columns.includes("quelle");
@@ -464,12 +463,6 @@
             const spalte = ergebnis.columns[i];
             const wert = zeile[i];
 
-            /*
-              Bilder:
-              - Filmplakate: Hochformat
-              - Pokémon-Bilder: quadratisch
-              - Andere Tabellen mit "bild": ebenfalls quadratisch
-            */
             if (spalte === "bild") {
               const bildUrl = String(wert ?? "").trim();
 
@@ -499,18 +492,6 @@
                 html += "<td>Kein Bild vorhanden</td>";
               }
 
-            /*
-              Filmquelle:
-              Erwartet JSON in der Datenbankspalte "quelle".
-
-              Beispiel:
-              {
-                "logo": "https://...svg",
-                "url": "https://www.themoviedb.org/movie/550",
-                "hinweis": "This product uses the TMDB API but is not endorsed or certified by TMDB.",
-                "hinweis_de": "Diese Anwendung verwendet die TMDB-API ..."
-              }
-            */
             } else if (spalte === "quelle") {
               let quelle = null;
 
@@ -571,9 +552,6 @@
                 `;
               }
 
-            /*
-              Alle anderen Datenbankwerte werden sicher als Text angezeigt.
-            */
             } else {
               html += `<td>${escapeHtml(wert ?? "")}</td>`;
             }
