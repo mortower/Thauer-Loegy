@@ -95,7 +95,6 @@
       text-align: left;
       vertical-align: top;
       border: 1px solid #d1d5db;
-      word-wrap: break-word;
       overflow-wrap: break-word;
       white-space: normal;
     }
@@ -110,6 +109,7 @@
       border-radius: 3px;
     }
 
+    /* Filmplakate */
     .bild-poster {
       display: block;
       width: 68px;
@@ -118,6 +118,7 @@
       border-radius: 4px;
     }
 
+    /* Pokémon-Bilder */
     .bild-quadratisch {
       display: block;
       width: 68px;
@@ -126,6 +127,17 @@
       border-radius: 4px;
     }
 
+    /* YouTube-Kanalbilder */
+    .bild-youtuber {
+      display: block;
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 50%;
+      background: #eeeeee;
+    }
+
+    /* TMDB-Quellenangabe bei Filmen */
     .tmdb-quelle {
       min-width: 230px;
     }
@@ -148,6 +160,14 @@
     .tmdb-hinweis-de {
       margin-top: 0.35rem;
     }
+
+    /* Einfache YouTube-Quellenangabe */
+    .youtube-quelle {
+      min-width: 220px;
+      color: #4b5563;
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
   </style>
 </head>
 
@@ -160,6 +180,8 @@
     pokemon (bild, <u>id</u>, name, typ1, typ2, groesse, gewicht, species, beschreibung)
     <br>
     filme (bild, <u>id</u>, titel, veroeffentlichung, dauer, land, beschreibung, bewertung, quelle)
+    <br>
+    youtuber (bild, <u>id</u>, name, videoanzahl, videoaufrufe, abonnenten, typ, seit, quelle)
   </p>
 
   <h2>SQL-Befehle</h2>
@@ -169,9 +191,16 @@
   <textarea id="sql" rows="12"></textarea>
 
   <div style="margin-top: 0.4rem; display: flex; align-items: center;">
-    <button id="ausfuehren">Abfrage ausführen</button>
+    <button id="ausfuehren" type="button">Abfrage ausführen</button>
 
-    <div style="margin-left: auto; display: flex; align-items: center; gap: 0.4rem;">
+    <div
+      style="
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      "
+    >
       <button
         id="zoom-minus"
         class="secondary"
@@ -228,8 +257,10 @@
 
       } catch (fehler) {
         console.error("Fehler beim Start von sql.js:", fehler);
+
         meldung.textContent =
-          "Die SQL-Umgebung konnte nicht geladen werden: " + fehler.message;
+          "Die SQL-Umgebung konnte nicht geladen werden: " +
+          fehler.message;
       }
     }
 
@@ -292,7 +323,10 @@
           }
 
           const daten = await antwort.arrayBuffer();
-          const quellDb = new SQL.Database(new Uint8Array(daten));
+
+          const quellDb = new SQL.Database(
+            new Uint8Array(daten)
+          );
 
           kopiereTabellen(quellDb, pfad);
 
@@ -305,7 +339,8 @@
       }
 
       meldung.textContent =
-        `${geladeneDateien} von ${datenbanken.length} Datenbankdatei(en) geladen.`;
+        `${geladeneDateien} von ${datenbanken.length} ` +
+        "Datenbankdatei(en) geladen.";
     }
 
     function kopiereTabellen(quellDb, dateiname) {
@@ -336,6 +371,7 @@
             `Tabelle "${tabellenName}" aus ${dateiname} wurde übersprungen, ` +
             "weil bereits eine Tabelle mit diesem Namen existiert."
           );
+
           continue;
         }
 
@@ -430,6 +466,12 @@
           ergebnis.columns.includes("name") &&
           ergebnis.columns.includes("typ1");
 
+        const istYoutuberAbfrage =
+          ergebnis.columns.includes("name") &&
+          ergebnis.columns.includes("abonnenten") &&
+          ergebnis.columns.includes("videoanzahl") &&
+          ergebnis.columns.includes("videoaufrufe");
+
         const titelIndex = ergebnis.columns.indexOf("titel");
         const nameIndex = ergebnis.columns.indexOf("name");
 
@@ -447,7 +489,7 @@
           for (let i = 0; i < zeile.length; i++) {
             const spalte = ergebnis.columns[i];
             const wert = zeile[i];
-            
+
             if (spalte === "bild") {
               const bildUrl = String(wert ?? "").trim();
 
@@ -455,11 +497,15 @@
                 ? String(zeile[titelIndex] ?? "Film").trim()
                 : istPokemonAbfrage && nameIndex >= 0
                   ? String(zeile[nameIndex] ?? "Pokémon").trim()
-                  : "Bild";
+                  : istYoutuberAbfrage && nameIndex >= 0
+                    ? String(zeile[nameIndex] ?? "YouTuber").trim()
+                    : "Bild";
 
               const bildKlasse = istFilmAbfrage
                 ? "bild-poster"
-                : "bild-quadratisch";
+                : istYoutuberAbfrage
+                  ? "bild-youtuber"
+                  : "bild-quadratisch";
 
               if (bildUrl.startsWith("https://")) {
                 html += `
@@ -476,65 +522,88 @@
               } else {
                 html += "<td>Kein Bild vorhanden</td>";
               }
-            
+
             } else if (spalte === "quelle") {
-              let quelle = null;
+              const quelleText = String(wert ?? "").trim();
 
-              try {
-                quelle = JSON.parse(String(wert ?? ""));
-              } catch (fehler) {
-                console.warn(
-                  "Ungültiger JSON-Inhalt in der Spalte 'quelle':",
-                  fehler
-                );
-              }
-
-              const logoUrl = String(quelle?.logo ?? "").trim();
-              const tmdbUrl = String(quelle?.url ?? "").trim();
-              const hinweis = String(quelle?.hinweis ?? "").trim();
-              const hinweisDe = String(quelle?.hinweis_de ?? "").trim();
-
-              const logoIstGueltig = logoUrl.startsWith("https://");
-              const zielIstGueltig = tmdbUrl.startsWith("https://");
-
-              if (logoIstGueltig && zielIstGueltig) {
+              /*
+                YouTuber:
+                Das Feld "quelle" enthält bei deiner YouTuber-Datenbank
+                nur einen einfachen Text und kein JSON.
+              */
+              if (istYoutuberAbfrage) {
                 html += `
-                  <td class="tmdb-quelle">
-                    <a
-                      href="${escapeHtml(tmdbUrl)}"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title="Film bei The Movie Database (TMDB) öffnen"
-                    >
-                      <img
-                        class="tmdb-logo"
-                        src="${escapeHtml(logoUrl)}"
-                        alt="The Movie Database (TMDB)"
-                        loading="lazy"
-                      >
-                    </a>
-
-                    <small lang="en" class="tmdb-hinweis">
-                      ${escapeHtml(hinweis)}
-                    </small>
-
-                    ${
-                      hinweisDe
-                        ? `
-                          <small class="tmdb-hinweis tmdb-hinweis-de">
-                            ${escapeHtml(hinweisDe)}
-                          </small>
-                        `
-                        : ""
-                    }
+                  <td class="youtube-quelle">
+                    ${escapeHtml(
+                      quelleText || "Keine Quellenangabe vorhanden."
+                    )}
                   </td>
                 `;
+
               } else {
-                html += `
-                  <td class="tmdb-quelle">
-                    Keine gültige TMDB-Quellenangabe vorhanden.
-                  </td>
-                `;
+                /*
+                  Filme:
+                  Das Feld "quelle" enthält das TMDB-JSON mit Logo,
+                  Link sowie englischem und deutschem Hinweis.
+                */
+                let quelle = null;
+
+                try {
+                  quelle = JSON.parse(quelleText);
+                } catch (fehler) {
+                  console.warn(
+                    "Ungültiger JSON-Inhalt in der Spalte 'quelle':",
+                    fehler
+                  );
+                }
+
+                const logoUrl = String(quelle?.logo ?? "").trim();
+                const tmdbUrl = String(quelle?.url ?? "").trim();
+                const hinweis = String(quelle?.hinweis ?? "").trim();
+                const hinweisDe = String(quelle?.hinweis_de ?? "").trim();
+
+                const logoIstGueltig = logoUrl.startsWith("https://");
+                const zielIstGueltig = tmdbUrl.startsWith("https://");
+
+                if (logoIstGueltig && zielIstGueltig) {
+                  html += `
+                    <td class="tmdb-quelle">
+                      <a
+                        href="${escapeHtml(tmdbUrl)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Film bei The Movie Database (TMDB) öffnen"
+                      >
+                        <img
+                          class="tmdb-logo"
+                          src="${escapeHtml(logoUrl)}"
+                          alt="The Movie Database (TMDB)"
+                          loading="lazy"
+                        >
+                      </a>
+
+                      <small lang="en" class="tmdb-hinweis">
+                        ${escapeHtml(hinweis)}
+                      </small>
+
+                      ${
+                        hinweisDe
+                          ? `
+                            <small class="tmdb-hinweis tmdb-hinweis-de">
+                              ${escapeHtml(hinweisDe)}
+                            </small>
+                          `
+                          : ""
+                      }
+                    </td>
+                  `;
+                } else {
+                  html += `
+                    <td class="tmdb-quelle">
+                      Keine gültige TMDB-Quellenangabe vorhanden.
+                    </td>
+                  `;
+                }
               }
 
             } else {
@@ -548,10 +617,13 @@
         html += "</tbody></table>";
 
         ausgabe.innerHTML = html;
-        meldung.textContent = `${ergebnis.values.length} Zeile(n) gefunden.`;
+
+        meldung.textContent =
+          `${ergebnis.values.length} Zeile(n) gefunden.`;
 
       } catch (fehler) {
         console.error("SQL-Fehler:", fehler);
+
         ausgabe.innerHTML = "";
         meldung.textContent = "SQL-Fehler: " + fehler.message;
       }
