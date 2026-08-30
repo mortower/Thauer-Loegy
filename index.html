@@ -472,6 +472,14 @@
           ergebnis.columns.includes("videoanzahl") &&
           ergebnis.columns.includes("videoaufrufe");
 
+        const istStreamerAbfrage =
+          ergebnis.columns.includes("name") &&
+          ergebnis.columns.includes("abonnenten") &&
+          ergebnis.columns.includes("kategorie") &&
+          ergebnis.columns.includes("sprache") &&
+          ergebnis.columns.includes("seit") &&
+          !ergebnis.columns.includes("videoanzahl");
+
         const titelIndex = ergebnis.columns.indexOf("titel");
         const nameIndex = ergebnis.columns.indexOf("name");
 
@@ -494,18 +502,20 @@
               const bildUrl = String(wert ?? "").trim();
 
               const bezeichnung = istFilmAbfrage && titelIndex >= 0
-                ? String(zeile[titelIndex] ?? "Film").trim()
-                : istPokemonAbfrage && nameIndex >= 0
-                  ? String(zeile[nameIndex] ?? "Pokémon").trim()
-                  : istYoutuberAbfrage && nameIndex >= 0
-                    ? String(zeile[nameIndex] ?? "YouTuber").trim()
+              ? String(zeile[titelIndex] ?? "Film").trim()
+              : istPokemonAbfrage && nameIndex >= 0
+                ? String(zeile[nameIndex] ?? "Pokémon").trim()
+                : istYoutuberAbfrage && nameIndex >= 0
+                  ? String(zeile[nameIndex] ?? "YouTuber").trim()
+                  : istStreamerAbfrage && nameIndex >= 0
+                    ? String(zeile[nameIndex] ?? "Streamer").trim()
                     : "Bild";
 
-              const bildKlasse = istFilmAbfrage
-                ? "bild-poster"
-                : istYoutuberAbfrage
-                  ? "bild-youtuber"
-                  : "bild-quadratisch";
+            const bildKlasse = istFilmAbfrage
+              ? "bild-poster"
+              : istYoutuberAbfrage || istStreamerAbfrage
+                ? "bild-youtuber"
+                : "bild-quadratisch";
 
               if (bildUrl.startsWith("https://")) {
                 html += `
