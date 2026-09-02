@@ -165,6 +165,42 @@
       font-size: 0.78rem;
       line-height: 1.35;
     }
+
+    /* Footer mit rechtlichen Hinweisen */
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid #e5e7eb;
+      color: #6b7280;
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+
+    footer a {
+      color: #6b7280;
+      text-decoration: underline;
+    }
+
+    footer a:hover {
+      color: #374151;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .footer-section h3 {
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin: 0 0 0.4rem 0;
+      color: #374151;
+    }
+
+    .footer-section p {
+      margin: 0;
+    }
   </style>
 </head>
 
@@ -222,6 +258,35 @@
 
   <div id="meldung">Datenbanken werden geladen …</div>
   <div id="ergebnis"></div>
+
+  <!-- Footer mit Impressum, Datenschutz und Haftungsausschluss -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-section">
+        <h3>Impressum</h3>
+        <p>
+          Anbieter: [Dein Name]<br>
+          [Deine Straße und Hausnummer]<br>
+          [PLZ und Ort]<br>
+          E-Mail: <a href="mailto:[deine-email]">[deine-email]</a>
+        </p>
+      </div>
+
+      <div class="footer-section">
+        <h3>Datenschutzhinweise</h3>
+        <p>
+          Diese Seite speichert keine personenbezogenen Daten. Es werden lediglich technische Zugriffsdaten (z. B. IP-Adresse, Browser-Typ) vom Hosting-Provider (GitHub Pages) im Rahmen des Betriebs protokolliert. Weitere Informationen findest du in der <a href="https://docs.github.com/de/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener noreferrer">GitHub Privacy Statement</a>.
+        </p>
+      </div>
+
+      <div class="footer-section">
+        <h3>Rechtlicher Ausschluss</h3>
+        <p>
+          Alle Inhalte wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte wird jedoch keine Gewähr übernommen. Die Nutzung der Inhalte erfolgt auf eigene Verantwortung.
+        </p>
+      </div>
+    </div>
+  </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
 
